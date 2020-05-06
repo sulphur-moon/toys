@@ -55,7 +55,7 @@ def calc_recommendation():
     for item in items:
         tree.delete(item)
     for i in range(len(res)):
-        tree.insert("", i * 2, text="", values=(res[i][0], res[i][1], res[i][3]))
+        tree.insert("", i * 2, text="", values=(str(i) + '. ' + res[i][0], res[i][1], res[i][3]))
         tree.insert("", i * 2 + 1, text="", values=("", res[i][2], ""))
     return
 
