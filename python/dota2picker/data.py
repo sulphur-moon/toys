@@ -1,6 +1,7 @@
 import requests
 import re
 import time
+import numpy as np
 from database import Database
 
 
@@ -184,11 +185,13 @@ class Data(object):
         for hero in all_heroes:
             if hero not in anti and hero not in comb and hero not in ban:
                 anti_info = []
+                rates = []
                 s_anti_rate = 0
                 s_anti_win_rate = 0
                 for a in anti:
                     antirate = info[hero]['anti']['anti_rate'][a]
                     winrate = info[hero]['anti']['win_rate'][a]
+                    rates.append(antirate)
                     s_anti_rate += antirate
                     s_anti_win_rate += winrate
                     s = str(antirate).rjust(6, ' ')  # + '|' + str(winrate).rjust(5, ' ')
@@ -201,6 +204,7 @@ class Data(object):
                 for c in comb:
                     combrate = info[hero]['comb']['comb_rate'][c]
                     winrate = info[hero]['comb']['win_rate'][c]
+                    rates.append(combrate)
                     s_comb_rate += combrate
                     s_comb_win_rate += winrate
                     s = str(combrate).rjust(6, ' ')  # + '|' + str(winrate).rjust(5, ' ')
@@ -209,7 +213,9 @@ class Data(object):
                 comb_info += ' =' + str(round(s_comb_rate, 2)).rjust(5, ' ')
                 tot_rate = s_anti_rate + s_comb_rate
                 tot_win_rate = (s_anti_win_rate + s_comb_win_rate) / (len(anti) + len(comb))
-                eva = tot_win_rate + tot_rate
-                tot_info = str(round(tot_rate, 2)) + '|' + str(round(tot_win_rate, 2)) + '=' + str(round(eva, 2))
+                rate_std = np.std(rates, ddof=1)
+                eva = tot_win_rate + tot_rate - rate_std
+                tot_info = str(round(tot_rate, 2)) + '|' + str(round(rate_std, 2)) + \
+                    '|' + str(round(tot_win_rate, 2)) + '=' + str(round(eva, 2))
                 ans.append((hero, anti_info, comb_info, tot_info, eva))
         return sorted(ans, reverse=True, key=lambda x: x[4])
