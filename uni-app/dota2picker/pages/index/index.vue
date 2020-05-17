@@ -3,16 +3,17 @@
 		<view class="heroSelect">
 			<view>对手英雄</view>
 			<view class="heroSideSelect">
-				<image v-for="index in anti_id" :src="pre_fix + array[anti_index[index]].pic_url" :key="index" class="item" mode="aspectFit" @click="antiBindPickerChange(index)"></image>
+				<image v-for="index in anti_id" :src="array[anti_index[index]].pic_url" :key="index" class="item" mode="aspectFit" @click="antiBindPickerChange(index)"></image>
 			</view>
 			<view>队友英雄</view>
 			<view class="heroSideSelect">
-				<image v-for="index in comb_id" :src="pre_fix + array[comb_index[index]].pic_url" :key="index" class="item" mode="aspectFit" @click="combBindPickerChange(index)"></image>
-				<image src="../../static/hero_pic/calc.png" class="item" mode="aspectFit" @click="calculate"></image>
+				<image v-for="index in comb_id" :src="array[comb_index[index]].pic_url" :key="index" class="item" mode="aspectFit" @click="combBindPickerChange(index)"></image>
+				<image src="../../static/btn/calc.png" class="item" mode="aspectFit" @click="calculate"></image>
 			</view>
 		</view>
 		<view class="">
-			
+			<view>计算结果(已选英雄不少于2时有效)</view>
+			<text style="text-align: left;font-size: 10upx;">{{result}}</text>
 		</view>
 	</view>
 </template>
@@ -21,6 +22,7 @@
 	import {hero_dict} from './json_hero.js';
 	import {anti_dict} from './json_anti.js';
 	import {comb_dict} from './json_comb.js';
+	import {myLib} from './lib.js';
 	export default {
 		data() {
 			return {
@@ -34,7 +36,7 @@
 				flg: true,
 				anti_id:[0, 1, 2, 3, 4],
 				comb_id:[0, 1, 2, 3],
-				pre_fix: '../../static/hero_pic/'
+				result: ""
 			}
 		},
 		onLoad() {
@@ -42,7 +44,7 @@
 		},
 		methods: {
 			antiBindPickerChange: function(e) {
-				console.log("anti index:" + e);
+				//console.log("anti index:" + e);
 				this.anti_now = e;
 				this.flg = true;
 				uni.navigateTo({
@@ -50,7 +52,7 @@
 				})
 			},
 			combBindPickerChange: function(e) {
-				console.log("comb index:" + e)
+				//console.log("comb index:" + e)
 				this.comb_now = e;
 				this.flg = false;
 				uni.navigateTo({
@@ -81,24 +83,48 @@
 					res.comb_win_rate = [];
 					res.tot = "";
 					res.eva = 0;
-					let win_rate = 0;
 					for (let anti_hero of this.anti_index) {
+						if (anti_hero == "选择英雄") {
+							continue;
+						}
 						res.anti_rate.push(this.anti_dict[anti_hero][hero]['anti_rate']);
 						res.anti_win_rate.push(this.anti_dict[anti_hero][hero]['win_rate']);
-						win_rate += this.anti_dict[anti_hero][hero]['win_rate'];
 					}
 					for (let comb_hero of this.comb_index) {
+						if (comb_hero == "选择英雄") {
+							continue;
+						}
 						res.comb_rate.push(this.comb_dict[comb_hero][hero]['comb_rate']);
 						res.comb_win_rate.push(this.comb_dict[comb_hero][hero]['win_rate']);
-						win_rate += this.comb_dict[comb_hero][hero]['win_rate'];
 					}
-					res.eva = win_rate / (res.anti_win_rate.length + res.comb_win_rate.length);
-					ans.push(res);
+					let win_rates = res.anti_win_rate.concat(res.comb_win_rate);
 					let rates = res.anti_rate.concat(res.comb_rate);
-					console.log(rates, typeof(rates));
+					let rate_sum = myLib.round2digit(myLib.sum(rates));
+					let win_rate_mean = myLib.round2digit(myLib.mean(win_rates));
+					let rate_std = myLib.round2digit(myLib.std(rates));
+					res.eva = myLib.round2digit(win_rate_mean + rate_sum/rate_std);
+					res.tot = win_rate_mean.toString() + ' + ' + rate_sum.toString() + '/' + rate_std.toString() + ' = ' + res.eva.toString();
+					//console.log(rates, typeof(rates));
+					//console.log("std = ", myLib.round2digit(myLib.std(rates)));
+					ans.push(res);
 				}
+				ans.sort(function(a, b){
+					return b.eva - a.eva;
+				})
 				console.log(ans);
-				console.log(ans.length);
+				//console.log(ans.length);
+				this.result = "";
+				for (let i = 0; i < 30; i++) {
+					let a = ans[i];
+					this.result += a.hero + "\n"
+					if (a.anti_rate.length > 0) {
+						this.result += a.anti_rate.join(' ') + '\n';
+					}
+					if (a.comb_rate.length > 0) {
+						this.result += a.comb_rate.join(' ') + '\n';
+					} 
+					this.result += a.tot + "\n";
+				}
 			}
 		}
 	}

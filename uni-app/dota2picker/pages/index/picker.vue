@@ -5,19 +5,19 @@
 				力量英雄
 			</view>
 			<view class="heroSelect red">
-				<image v-for="index in index_strength" :src="pre_fix + array[index].pic_url" :key="index" class="item" mode="aspectFit" @click="select(index)"></image>
+				<image v-for="index in index_strength" :src="array[index].pic_url" :key="index" class="item" mode="aspectFit" @click="select(index)"></image>
 			</view>
 			<view class="title">
 				敏捷英雄
 			</view>
 			<view class="heroSelect green">
-				<image v-for="index in index_agility" :src="pre_fix + array[index].pic_url" :key="index" class="item" mode="aspectFit" @click="select(index)"></image>
+				<image v-for="index in index_agility" :src="array[index].pic_url" :key="index" class="item" mode="aspectFit" @click="select(index)"></image>
 			</view>
 			<view class="title">
 				智力英雄
 			</view>
 			<view class="heroSelect blue">
-				<image v-for="index in index_intelligence" :src="pre_fix + array[index].pic_url" :key="index" class="item" mode="aspectFit" @click="select(index)"></image>
+				<image v-for="index in index_intelligence" :src="array[index].pic_url" :key="index" class="item" mode="aspectFit" @click="select(index)"></image>
 			</view>
 		</view>
 		
@@ -33,8 +33,7 @@
 				array: hero_dict,
 				index_strength: strength,
 				index_agility: agility,
-				index_intelligence: intelligence,
-				pre_fix: '../../static/hero_pic/'
+				index_intelligence: intelligence
 			}
 		},
 		onLoad() {
