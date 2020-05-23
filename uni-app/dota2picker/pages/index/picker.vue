@@ -49,16 +49,16 @@
 		},
 		methods: {
 			select: function(e) {
-				console.log(e)
+				//console.log(e)
 				let pages = getCurrentPages();
 				let nowPage = pages[pages.length - 1];
 				let prevPage = pages[pages.length - 2];
-				console.log(prevPage.$vm.flg);
+				//console.log(prevPage.$vm.flg);
 				if (prevPage.$vm.flg) {
-					console.log(prevPage.$vm.anti_now);
+					//console.log(prevPage.$vm.anti_now);
 					this.$set(prevPage.$vm.anti_index, prevPage.$vm.anti_now, e);
 				} else {
-					console.log(prevPage.$vm.comb_now);
+					//console.log(prevPage.$vm.comb_now);
 					this.$set(prevPage.$vm.comb_index, prevPage.$vm.comb_now, e);
 				}
 				uni.navigateBack({
